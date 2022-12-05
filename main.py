@@ -68,6 +68,8 @@ def power(state):
 		else:
 			return "Server running in development mode - not a raspberry pi"
 		return "turned powertail off"
+	
+	return "Invalid state specified"
 
 if __name__ == '__main__':
 	starttime = time.time()
