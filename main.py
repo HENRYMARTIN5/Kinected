@@ -2,10 +2,19 @@
 from flask import Flask, request
 from utils import ip
 from utils.config import ConfigFile
+from utils.logging import Logger
 import psutil
 import time
 import platform
+from flask.logging import default_handler
+
+logger = Logger("logs/server.log", "Powertail")
+
+logger.info("Initializing server...")
+
 app = Flask(__name__)
+
+app.logger.removeHandler(default_handler)
 
 config = ConfigFile("config.json")
 starttime = time.time()
@@ -13,11 +22,14 @@ starttime = time.time()
 # Check if the server is running on a raspberry pi
 raspberry = False
 if platform.machine() == "armv7l":
+	logger.info("Running on a Raspberry Pi - Enabling GPIO")
 	import RPi.GPIO as GPIO
 	# Setup GPIO for pin 17 being used as an output
 	GPIO.setmode(GPIO.BCM)
 	GPIO.setup(17, GPIO.OUT)
 	raspberry = True
+else:
+	logger.warn("Not running on a Raspberry Pi - GPIO will not be used!")
 
 def shutdown_server():
     func = request.environ.get('werkzeug.server.shutdown')
@@ -41,7 +53,7 @@ def status():
 	curtime = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
 	numprocesses = len(psutil.pids())
 	uptime = time.time() - starttime
-	return "CPU: %s%%, RAM: %s%%, Disk: %s%%, Platform: %s, Time: %s, Processes: %s, Uptime: %s" % (cpu, ram, disk, platform_, curtime, numprocesses, uptime)
+	return "CPU: %s%%, <br>RAM: %s%%, <br>Disk: %s%%, <br>Platform: %s, <br>Time: %s, <br>Processes: %s, <br>Uptime: %s" % (cpu, ram, disk, platform_, curtime, numprocesses, uptime)
 
 
 @app.route('/shutdown', methods=['POST'])
@@ -72,6 +84,7 @@ def power(state):
 	return "Invalid state specified"
 
 if __name__ == '__main__':
+	logger.info("Starting server...")
 	starttime = time.time()
 	# Run using builtin wsgi server
 	app.run(host=ip.getIp(), port=8080, debug=False)
