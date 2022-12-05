@@ -1,12 +1,20 @@
 # Flask app
-from flask import Flask
+from flask import Flask, request
 from utils import ip
+from utils.config import ConfigFile
 import psutil
 import time
 import platform
 app = Flask(__name__)
 
+config = ConfigFile("config.json")
 starttime = time.time()
+
+def shutdown_server():
+    func = request.environ.get('werkzeug.server.shutdown')
+    if func is None:
+        raise RuntimeError('Not running with the Werkzeug built in server')
+    func()
 
 @app.route('/')
 def index():
@@ -25,6 +33,14 @@ def status():
 	uptime = time.time() - starttime
 
 	return "CPU: %s%%, RAM: %s%%, Disk: %s%%, Platform: %s, Time: %s, Processes: %s, Uptime: %s" % (cpu, ram, disk, platform_, curtime, numprocesses, uptime)
+
+@app.route('/shutdown', methods=['POST'])
+def shutdown():
+	# Check the password against the config
+	if request.form['password'] == config.get('password'):
+		# Shutdown the server
+		shutdown_server()
+		return "Server shutting down..."
 
 if __name__ == '__main__':
 	starttime = time.time()
