@@ -8,7 +8,7 @@ import time
 import platform
 from flask.logging import default_handler
 
-logger = Logger("logs/server.log", "Powertail")
+logger = Logger("logs/server.log", "KinectedPowertail")
 
 logger.info("Initializing server...")
 
@@ -40,7 +40,7 @@ def shutdown_server():
 
 @app.route('/')
 def index():
-	return "KinectConnect powertail server running on %s" % ip.getIp()
+	return "Kinected powertail server running on %s" % ip.getIp()
 
 
 @app.route('/status')
@@ -87,4 +87,8 @@ if __name__ == '__main__':
 	logger.info("Starting server...")
 	starttime = time.time()
 	# Run using builtin wsgi server
-	app.run(host=ip.getIp(), port=8080, debug=False)
+	# if os is windows
+	if platform.system() == "Windows":
+		app.run(host=ip.getIp(), port=2531, debug=False)
+	else:
+		app.run(host="0.0.0.0", port=2531, debug=False)
