@@ -80,6 +80,15 @@ def power(state):
 		else:
 			return "Server running in development mode - not a raspberry pi"
 		return "turned powertail off"
+	elif state == "toggle":
+		if raspberry:
+			if GPIO.input(17):
+				GPIO.output(17, GPIO.LOW)
+			else:
+				GPIO.output(17, GPIO.HIGH)
+		else:
+			return "Server running in development mode - not a raspberry pi"
+		return "toggled powertail"
 	
 	return "Invalid state specified"
 
@@ -87,7 +96,6 @@ if __name__ == '__main__':
 	logger.info("Starting server...")
 	starttime = time.time()
 	# Run using builtin wsgi server
-	# if os is windows
 	if platform.system() == "Windows":
 		app.run(host=ip.getIp(), port=2531, debug=False)
 	else:

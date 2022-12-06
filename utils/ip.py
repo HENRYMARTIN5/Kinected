@@ -1,4 +1,7 @@
 import socket
+import re
+import uuid
+import requests
 
 def getIp():
 	try:
@@ -10,5 +13,26 @@ def getIp():
 	except:
 		return None
 
+def getHostname():
+	try:
+		return socket.gethostname()
+	except:
+		return None
+
+def getMac():
+	try:
+		return ':'.join(re.findall('..', '%012x' % uuid.getnode()))
+	except:
+		return None
+
+def getMacVendor(mac):
+	try:
+		url = "https://api.macvendors.com/%s" % mac
+		response = requests.get(url)
+		return response.text
+	except:
+		return None
+
+
 if __name__ == "__main__":
-	print(getIp())
+	print(getMacVendor(getMac()))
