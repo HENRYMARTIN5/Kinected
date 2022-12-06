@@ -13,6 +13,14 @@ def getIp():
 	except:
 		return None
 
+def getPubIp():
+	try:
+		url = "http://ip-api.com/json"
+		response = requests.get(url)
+		return response.json()['query']
+	except:
+		return None
+
 def getHostname():
 	try:
 		return socket.gethostname()
@@ -29,10 +37,17 @@ def getMacVendor(mac):
 	try:
 		url = "https://api.macvendors.com/%s" % mac
 		response = requests.get(url)
-		return response.text
+		return response.status
 	except:
 		return None
 
+def approximateLocation(ip):
+	try:
+		url = "http://ip-api.com/json/%s" % ip
+		response = requests.get(url)
+		return response.json()
+	except:
+		return None
 
 if __name__ == "__main__":
-	print(getMacVendor(getMac()))
+	print(approximateLocation(getPubIp()))
