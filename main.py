@@ -1,12 +1,10 @@
 # Flask app
 from flask import Flask, request
+from flask.logging import default_handler
 from betterlib import ip
 from betterlib.config import ConfigFile
 from betterlib.logging import Logger
-import psutil
-import time
-import platform
-from flask.logging import default_handler
+import psutil, time, platform
 
 logger = Logger("logs/server.log", "KinectedPowertail")
 
@@ -31,20 +29,20 @@ if platform.machine() == "armv7l":
 else:
 	logger.warn("Not running on a Raspberry Pi - GPIO will not be used!")
 
-def shutdown_server():
+def shutdown_server() -> None:
     func = request.environ.get('werkzeug.server.shutdown')
     if func is None:
-        raise RuntimeError('Not running with the Werkzeug built in server')
+        raise RuntimeError('Not running with the Werkzeug built in WSGI server')
     func()
 
 
 @app.route('/')
-def index():
+def index() -> str:
 	return "Kinected powertail server running on %s" % ip.getIp()
 
 
 @app.route('/status')
-def status():
+def status() -> str:
 	global starttime
 	cpu = psutil.cpu_percent()
 	ram = psutil.virtual_memory().percent
@@ -57,7 +55,7 @@ def status():
 
 
 @app.route('/shutdown', methods=['POST'])
-def shutdown():
+def shutdown() -> str:
 	# Check the password against the config
 	if request.form['password'] == config.get('password'):
 		# Shutdown the server
@@ -67,7 +65,7 @@ def shutdown():
 
 
 @app.route('/power/<state>')
-def power(state):
+def power(state: str) -> str:
 	try:
 		if state == "on":
 			if raspberry:
