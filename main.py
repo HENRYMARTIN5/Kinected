@@ -1,8 +1,8 @@
 # Flask app
 from flask import Flask, request
-from utils import ip
-from utils.config import ConfigFile
-from utils.logging import Logger
+from betterlib import ip
+from betterlib.config import ConfigFile
+from betterlib.logging import Logger
 import psutil
 import time
 import platform
@@ -68,29 +68,33 @@ def shutdown():
 
 @app.route('/power/<state>')
 def power(state):
-	if state == "on":
-		if raspberry:
-			GPIO.output(17, GPIO.HIGH)
-		else:
-			return "Server running in development mode - not a raspberry pi"
-		return "turned powertail on"
-	elif state == "off":
-		if raspberry:
-			GPIO.output(17, GPIO.LOW)
-		else:
-			return "Server running in development mode - not a raspberry pi"
-		return "turned powertail off"
-	elif state == "toggle":
-		if raspberry:
-			if GPIO.input(17):
+	try:
+		if state == "on":
+			if raspberry:
+				GPIO.output(17, GPIO.HIGH)
+			else:
+				return "Server running in development mode - not a raspberry pi"
+			return "turned powertail on"
+		elif state == "off":
+			if raspberry:
 				GPIO.output(17, GPIO.LOW)
 			else:
-				GPIO.output(17, GPIO.HIGH)
-		else:
-			return "Server running in development mode - not a raspberry pi"
-		return "toggled powertail"
-	
-	return "Invalid state specified"
+				return "Server running in development mode - not a raspberry pi"
+			return "turned powertail off"
+		elif state == "toggle":
+			if raspberry:
+				if GPIO.input(17):
+					GPIO.output(17, GPIO.LOW)
+				else:
+					GPIO.output(17, GPIO.HIGH)
+			else:
+				return "Server running in development mode - not a raspberry pi"
+			return "toggled powertail"
+		
+		return "Invalid state specified"
+	except:
+		logger.error("Error turning powertail on/off/toggle")
+		return "Error"
 
 if __name__ == '__main__':
 	logger.info("Starting server...")
