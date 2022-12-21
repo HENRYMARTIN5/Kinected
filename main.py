@@ -1,6 +1,5 @@
 # Flask app
 from flask import Flask, request
-from flask.logging import default_handler
 from betterlib import ip
 from betterlib.config import ConfigFile
 from betterlib.logging import Logger
@@ -11,8 +10,6 @@ logger = Logger("logs/server.log", "KinectedPowertail")
 logger.info("Initializing server...")
 
 app = Flask(__name__)
-
-app.logger.removeHandler(default_handler)
 
 config = ConfigFile("config.json")
 starttime = time.time()
