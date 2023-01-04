@@ -26,6 +26,7 @@ if platform.machine() == "armv7l":
 else:
 	logger.warn("Not running on a Raspberry Pi - GPIO will not be used!")
 
+lastactiontime = time.time()
 
 def shutdown_server() -> None:
     func = request.environ.get('werkzeug.server.shutdown')
@@ -62,7 +63,12 @@ def shutdown() -> str:
 
 
 @app.route('/power/<state>')
-def power(state: str) -> str:
+def power(state: str) -> str:	
+	global lastactiontime
+	if time.time() - lastactiontime < 0.5:
+		return "Cooldown - please wait 500ms before sending another request"
+	lastactiontime = time.time()
+
 	try:
 		if state == "on":
 			if raspberry:
