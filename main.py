@@ -9,7 +9,7 @@ logger = Logger("logs/server.log", "KinectedPowertail")
 
 logger.info("Initializing server...")
 
-app = Flask(__name__)
+app = Flask("KinectedPowertail")
 
 config = ConfigFile("config.json")
 starttime = time.time()
@@ -26,11 +26,12 @@ if platform.machine() == "armv7l":
 else:
 	logger.warn("Not running on a Raspberry Pi - GPIO will not be used!")
 
+
 def shutdown_server() -> None:
     func = request.environ.get('werkzeug.server.shutdown')
     if func is None:
-        raise RuntimeError('Not running with the Werkzeug built in WSGI server')
-    func()
+        logger.warn('Not running with the Werkzeug built in WSGI server. Cannot shutdown server via request.')
+    func() # FIXME: Werkzeug server is not shutting down properly. Fix when moving to production server
 
 
 @app.route('/')
@@ -47,15 +48,14 @@ def status() -> str:
 	platform_ = platform.platform()
 	curtime = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
 	numprocesses = len(psutil.pids())
-	uptime = time.time() - starttime
-	return "CPU: %s%%, <br>RAM: %s%%, <br>Disk: %s%%, <br>Platform: %s, <br>Time: %s, <br>Processes: %s, <br>Uptime: %s" % (cpu, ram, disk, platform_, curtime, numprocesses, uptime)
+	uptime = time.strftime("%H:%M:%S", time.gmtime(time.time() - starttime))
+	# FIXME: Beautify this
+	return "CPU: <code>%s%%</code>, <br>RAM: <code>%s%%</code>, <br>Disk: <code>%s%%</code>, <br>Platform: <code>%s</code>, <br>Time: <code>%s</code>, <br>Processes: <code>%s</code>, <br>Uptime: <code>%s</code>" % (cpu, ram, disk, platform_, curtime, numprocesses, uptime)
 
 
 @app.route('/shutdown', methods=['POST'])
 def shutdown() -> str:
-	# Check the password against the config
 	if request.form['password'] == config.get('password'):
-		# Shutdown the server
 		shutdown_server()
 		return "Server shutting down..."
 	return "Incorrect password"
@@ -94,8 +94,8 @@ def power(state: str) -> str:
 if __name__ == '__main__':
 	logger.info("Starting server...")
 	starttime = time.time()
-	# Run using builtin wsgi server
+	# FIXME: Swap from builtin WSGI server to production technology
 	if platform.system() == "Windows":
-		app.run(host=ip.getIp(), port=2531, debug=False)
+		app.run(host=ip.getIp(), port=2531, debug=False) # HACK: On windows, no shortcut exists for running on all interfaces, so instead we use the local ip
 	else:
 		app.run(host="0.0.0.0", port=2531, debug=False)
