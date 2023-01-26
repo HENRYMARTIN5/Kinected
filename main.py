@@ -3,7 +3,7 @@ from flask import Flask, request
 from betterlib import ip
 from betterlib.config import ConfigFile
 from betterlib.logging import Logger
-import psutil, time, platform
+import psutil, time, platform, threading
 
 logger = Logger("logs/server.log", "KinectedPowertail")
 
@@ -19,9 +19,10 @@ raspberry = False
 if platform.machine() == "armv7l":
 	logger.info("Running on a Raspberry Pi - Enabling GPIO")
 	import RPi.GPIO as GPIO
-	# Setup GPIO for pin 17 being used as an output
+	# Setup GPIO for pins 17 and 22 being used as outputs
 	GPIO.setmode(GPIO.BCM)
 	GPIO.setup(17, GPIO.OUT)
+	GPIO.setup(22, GPIO.OUT)
 	raspberry = True
 else:
 	logger.warn("Not running on a Raspberry Pi - GPIO will not be used!")
@@ -33,6 +34,15 @@ def shutdown_server() -> None:
     if func is None:
         logger.warn('Not running with the Werkzeug built in WSGI server. Cannot shutdown server via request.')
     func() # FIXME: Werkzeug server is not shutting down properly. Fix when moving to production server
+
+
+def blink_light_thread() -> None:
+	# Quickly blinks the light on pin 22 once
+	if not raspberry:
+		return
+	GPIO.output(22, GPIO.HIGH)
+	time.sleep(0.1)
+	GPIO.output(22, GPIO.LOW)
 
 
 @app.route('/')
@@ -63,7 +73,9 @@ def shutdown() -> str:
 
 
 @app.route('/power/<state>')
-def power(state: str) -> str:	
+def power(state: str) -> str:
+	threading.Thread(target=blink_light_thread).start() # Start a thread to blink the light without slowing down the main process
+
 	global lastactiontime
 	if time.time() - lastactiontime < 0.5:
 		return "Cooldown - please wait 500ms before sending another request"
