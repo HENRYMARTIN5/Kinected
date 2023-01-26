@@ -47,11 +47,13 @@ def blink_light_thread() -> None:
 
 @app.route('/')
 def index() -> str:
+	threading.Thread(target=blink_light_thread).start() # Start a thread to blink the light without slowing down the main process
 	return "Kinected powertail server running on %s" % ip.getIp()
 
 
 @app.route('/status')
 def status() -> str:
+	threading.Thread(target=blink_light_thread).start() # Start a thread to blink the light without slowing down the main process
 	global starttime
 	cpu = psutil.cpu_percent()
 	ram = psutil.virtual_memory().percent
@@ -66,6 +68,7 @@ def status() -> str:
 
 @app.route('/shutdown', methods=['POST'])
 def shutdown() -> str:
+	threading.Thread(target=blink_light_thread).start() # Start a thread to blink the light without slowing down the main process
 	if request.form['password'] == config.get('password'):
 		shutdown_server()
 		return "Server shutting down..."
