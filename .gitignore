@@ -1,5 +1,8 @@
-venv
+uds/venv/
 *.pyc
 *__pycache__*
 *.log*
-logs/
+uds/logs/
+hub/bin/
+hub/obj/
+hub/.vs/
