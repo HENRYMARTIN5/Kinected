@@ -5,14 +5,26 @@ from betterlib.config import ConfigFile
 from betterlib.logging import Logger
 import psutil, time, platform, threading
 
-logger = Logger("logs/server.log", "KinectedPowertail")
+logger = Logger("logs/server.log", "KinectedUDS")
 
 logger.info("Initializing server...")
 
-app = Flask("KinectedPowertail")
+app = Flask("KinectedUDS")
 
-config = ConfigFile("config.json")
+config = ConfigFile("./config.json")
 starttime = time.time()
+
+msgs = {
+	"cooldown": "You've been cooldown'd! - Please wait 500ms before sending another request.",
+	"invalidstate": "Invalid state specified",
+	"error": "Whoops! Something went wrong on our end. Please try again later.",
+	"invalidpassword": "Incorrect password specified to access administrative features.",
+	"shuttingdown": "Server shutting down...",
+	"devmode": "This UDS is running in development mode - no GPIO output will be used.",
+	"poweron": "Set power state to: on",
+	"poweroff": "Set power state to: off",
+	"powertoggle": "Toggled power state",
+}
 
 # Check if the server is running on a raspberry pi
 raspberry = False
@@ -48,7 +60,7 @@ def blink_light_thread() -> None:
 @app.route('/')
 def index() -> str:
 	threading.Thread(target=blink_light_thread).start() # Start a thread to blink the light without slowing down the main process
-	return "Kinected powertail server running on %s" % ip.getIp()
+	return "Kinected UDS (Universal Device Server) running on %s" % ip.getIp()
 
 
 @app.route('/status')
@@ -63,16 +75,15 @@ def status() -> str:
 	numprocesses = len(psutil.pids())
 	uptime = time.strftime("%H:%M:%S", time.gmtime(time.time() - starttime))
 	# FIXME: Beautify this
-	return "CPU: <code>%s%%</code>, <br>RAM: <code>%s%%</code>, <br>Disk: <code>%s%%</code>, <br>Platform: <code>%s</code>, <br>Time: <code>%s</code>, <br>Processes: <code>%s</code>, <br>Uptime: <code>%s</code>" % (cpu, ram, disk, platform_, curtime, numprocesses, uptime)
-
+	return "<h2>Kinected UDS Status</h2><br>CPU: <code>%s%%</code>, <br>RAM: <code>%s%%</code>, <br>Disk: <code>%s%%</code>, <br>Platform: <code>%s</code>, <br>Time: <code>%s</code>, <br>Processes: <code>%s</code>, <br>Uptime: <code>%s</code>" % (cpu, ram, disk, platform_, curtime, numprocesses, uptime)
 
 @app.route('/shutdown', methods=['POST'])
 def shutdown() -> str:
 	threading.Thread(target=blink_light_thread).start() # Start a thread to blink the light without slowing down the main process
 	if request.form['password'] == config.get('password'):
 		shutdown_server()
-		return "Server shutting down..."
-	return "Incorrect password"
+		return msgs["shuttingdown"]
+	return msgs["invalidpassword"]
 
 
 @app.route('/power/<state>')
@@ -81,7 +92,7 @@ def power(state: str) -> str:
 
 	global lastactiontime
 	if time.time() - lastactiontime < 0.5:
-		return "Cooldown - please wait 500ms before sending another request"
+		return msgs["cooldown"]
 	lastactiontime = time.time()
 
 	try:
@@ -89,14 +100,14 @@ def power(state: str) -> str:
 			if raspberry:
 				GPIO.output(17, GPIO.HIGH)
 			else:
-				return "Server running in development mode - not a raspberry pi"
-			return "turned powertail on"
+				return msgs["devmode"]
+			return msgs["poweron"]
 		elif state == "off":
 			if raspberry:
 				GPIO.output(17, GPIO.LOW)
 			else:
-				return "Server running in development mode - not a raspberry pi"
-			return "turned powertail off"
+				return msgs["devmode"]
+			return msgs["poweroff"]
 		elif state == "toggle":
 			if raspberry:
 				if GPIO.input(17):
@@ -104,19 +115,21 @@ def power(state: str) -> str:
 				else:
 					GPIO.output(17, GPIO.HIGH)
 			else:
-				return "Server running in development mode - not a raspberry pi"
-			return "toggled powertail"
+				return msgs["devmode"]
+			return msgs["powertoggle"]
 		
-		return "Invalid state specified"
+		return ["invalidstate"]
 	except:
-		logger.error("Error turning powertail on/off/toggle")
-		return "Error"
+		logger.error("Error turning powertail " + state)
+		return msgs["error"]
 
 if __name__ == '__main__':
 	logger.info("Starting server...")
 	starttime = time.time()
 	# FIXME: Swap from builtin WSGI server to production technology
 	if platform.system() == "Windows":
+		logger.warn("Running on Windows - Using local IP instead of all interfaces")
 		app.run(host=ip.getIp(), port=2531, debug=False) # HACK: On windows, no shortcut exists for running on all interfaces, so instead we use the local ip
 	else:
+		logger.info("UDS running on all interfaces")
 		app.run(host="0.0.0.0", port=2531, debug=False)
