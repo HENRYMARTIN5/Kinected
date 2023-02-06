@@ -6,3 +6,4 @@ uds/logs/
 hub/bin/
 hub/obj/
 hub/.vs/
+logs/
