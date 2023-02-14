@@ -172,6 +172,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
         /// </summary>
         public MainWindow()
         {
+            
             // one sensor is currently supported
             this.kinectSensor = KinectSensor.GetDefault();
 
@@ -490,14 +491,12 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                 this.txtMenuText.Text = "                Menu Mode Active";
                 this.txtMenuText3.Text = "                Select an option to deactivate";
                 this.txtMenuText2.Text = "Current selection: " + this.menuItems[this.currentMenuItem].text;
-                this.txtMenuText.Foreground = Brushes.Blue;
                 this.MenuStatusImg.Source = new BitmapImage(new Uri("pack://application:,,,/bars-solid.png"));
             }
             else {
                 this.txtMenuText.Text = "                Menu Mode Inactive";
                 this.txtMenuText3.Text = "                Close both fists to activate";
                 this.txtMenuText2.Text = "Current mode: " + this.menuItems[this.currentMenuItem].text;
-                this.txtMenuText.Foreground = new SolidColorBrush(Color.FromRgb(110, 110, 110));
                 this.MenuStatusImg.Source = new BitmapImage(new Uri("pack://application:,,,/hand-solid.png"));
             }
 

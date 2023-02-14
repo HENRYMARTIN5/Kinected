@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:av="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="av" x:Class="Microsoft.Samples.Kinect.BodyBasics.MainWindow"
         Title="Kinected Hub" 
-        Height="712" Width="700" 
+        Height="800" Width="700" 
         Loaded="MainWindow_Loaded"
         Closing="MainWindow_Closing">
     <Window.Resources>
@@ -12,41 +12,61 @@
         <SolidColorBrush x:Key="KinectBlueBrush" Color="#ff00BCF2" />
     </Window.Resources>
     <Grid Margin="10 0 10 0" Name="MainGrid" Background="White">
+
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-            <RowDefinition Height="Auto" />
+            <RowDefinition Height="1*" />
+            <RowDefinition Height="5*" />
+            <RowDefinition Height="1*" />
+            <RowDefinition Height="1*" />
         </Grid.RowDefinitions>
 
-        <Viewbox Grid.Row="1" HorizontalAlignment="Center" Margin="0,65,0,0">
+        <TextBlock Grid.Row="0" x:Name="KinectedHubText" Foreground="{DynamicResource {x:Static SystemColors.ActiveCaptionTextBrushKey}}" FontFamily="Segoe UI" FontSize="18" Text="Kinected Hub"  HorizontalAlignment="Center" Margin="0,30,0,460" Grid.RowSpan="2"/>
+
+
+        <Viewbox Grid.Row="1" HorizontalAlignment="Center" Margin="0,65,0,0" RenderTransformOrigin="0.5,0.5" Height="550" >
+            <Viewbox.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform/>
+                    <SkewTransform/>
+                    <RotateTransform/>
+                    <TranslateTransform Y="-70"/>
+                </TransformGroup>
+            </Viewbox.RenderTransform>
             <Image Source="{Binding ImageSource}" Stretch="UniformToFill" />
         </Viewbox>
 
-        <StatusBar Grid.Row="2" HorizontalAlignment="Stretch" x:Name="statusBar" VerticalAlignment="Bottom" Background="White" Foreground="{StaticResource MediumGreyBrush}">
-            <StatusBarItem Height="100" Width="350" >
-                <Grid>
-                    <Grid>
-                        <Image x:Name="MenuStatusImg" HorizontalAlignment="Left" Height="90" VerticalAlignment="Top" Width="90" Source="/hand-solid.png" RenderTransformOrigin="0.5,0.5">
-                            <Image.RenderTransform>
-                                <TransformGroup>
-                                    <ScaleTransform/>
-                                    <SkewTransform/>
-                                    <RotateTransform/>
-                                    <TranslateTransform X="-10"/>
-                                </TransformGroup>
-                            </Image.RenderTransform>
-                        </Image>
-                        <TextBlock x:Name="txtMenuText" TextWrapping="Wrap" Text="                Menu Mode Inactive" FontSize="18" TextAlignment="Center" HorizontalAlignment="Center" Width="325"/>
-                        <TextBlock x:Name="txtMenuText3" TextWrapping="Wrap" Text="                Close both fists to activate" FontSize="18" TextAlignment="Center" HorizontalAlignment="Center" Width="325" Margin="0,26,0,-26"/>
-                    </Grid>
-                </Grid>
-            </StatusBarItem>
-            <StatusBarItem Height="100" >
-                <TextBlock x:Name="txtMenuText2" TextWrapping="Wrap" Text="Current mode: None" FontSize="18" TextAlignment="Center" HorizontalAlignment="Center" Width="325"/>
-            </StatusBarItem>
-        </StatusBar>
-        <Grid Margin="0,0,0,547" Grid.RowSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center">
-            <TextBlock x:Name="KinectedHubText" Foreground="{StaticResource MediumGreyBrush}" FontFamily="Segoe UI" FontSize="18" Text="Kinected Hub" Margin="0,5,0,-5"/>
+
+
+
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*" />
+                <ColumnDefinition Width="1*" />
+            </Grid.ColumnDefinitions>
+
+            <Image  x:Name="MenuStatusImg"  HorizontalAlignment="Left" Height="90" VerticalAlignment="Center" Width="90" Source="/hand-solid.png" RenderTransformOrigin="0.5,0.5" Margin="18,0,0,0">
+                <Image.RenderTransform>
+                    <TransformGroup>
+                        <ScaleTransform/>
+                        <SkewTransform/>
+                        <RotateTransform/>
+                        <TranslateTransform X="-10"/>
+                    </TransformGroup>
+                </Image.RenderTransform>
+            </Image>
+
+
+            <TextBlock  Grid.Column="1" x:Name="txtMenuText2" TextWrapping="Wrap" Text="Current mode: None" FontSize="18" TextAlignment="Center" Margin="0,35,0,4" />
+
+            <TextBlock  Grid.Column="0" x:Name="txtMenuText" TextWrapping="Wrap" Text="                Menu Mode Inactive" FontSize="18" TextAlignment="Center" HorizontalAlignment="Left" Width="325" Margin="15,19,0,-19" />
+            <TextBlock x:Name="txtMenuText3" TextWrapping="Wrap" Text="                Close both fists to activate" FontSize="18" TextAlignment="Center" HorizontalAlignment="Left" Width="340" Margin="8,49,0,4" Grid.ColumnSpan="2" />
+
         </Grid>
+        <TextBlock HorizontalAlignment="Center" Grid.Row="3" FontSize="13" TextWrapping="Wrap" Text="Welcome to Kinected! Make a fist with your left or right hand to trigger an action in your currently selected mode. To change the current mode that you are in, close both fists at the same time and close your left fist to cycle through options. Once you find the option that you would like to select, close your right fist to return to normal operations." VerticalAlignment="Center" Width="660" Height="78"/>
+
+
     </Grid>
 </Window>
+
+
+
