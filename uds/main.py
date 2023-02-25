@@ -126,7 +126,7 @@ def power(state: str) -> str:
 		
 		return ["invalidstate"]
 	except:
-		logger.error("Error turning powertail " + state)
+		logger.error("Error setting UDS port to " + state)
 		return msgs["error"]
 
 @app.route('/music/<action>')
@@ -151,7 +151,7 @@ def music(action: str) -> str:
 		
 		return ["invalidstate"]
 	except:
-		logger.error("Error turning powertail " + state)
+		logger.error("Error changing music to " + state)
 		return msgs["error"]
 
 if __name__ == '__main__':
