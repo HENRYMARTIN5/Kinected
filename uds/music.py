@@ -7,6 +7,7 @@ import betterlib.logging, pygame.mixer, random, threading
 
 class MusicPlayer:
     def __init__(self, logger : betterlib.logging.Logger, config : ConfigFile) -> None:
+        pygame.mixer.init()
         self.logger = logger
         self.config = config
         self.music = []
@@ -31,6 +32,7 @@ class MusicPlayer:
         if songname is None:
             songname = random.choice(self.music)
         self.logger.info("[Music] Playing song: " + songname)
+
         self.currentsong = pygame.mixer.Sound(songname)
         self.currentsongname = songname
         self.currentsongindex = self.music.index(songname)
