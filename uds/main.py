@@ -149,7 +149,7 @@ def music(action: str) -> str:
 			return msgs["musicstop"]
 		elif action == "next":
 			musicplayer.next()
-			return msgs["musicnext"]
+			return msgs["musicnext"].replace("[songname]", musicplayer.get_current_song())
 		
 		return ["invalidstate"]
 	except Exception as e:
