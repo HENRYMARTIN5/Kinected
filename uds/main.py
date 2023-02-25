@@ -3,7 +3,7 @@ from flask import Flask, request
 from betterlib import ip
 from betterlib.config import ConfigFile
 from betterlib.logging import Logger
-import psutil, time, platform, threading
+import psutil, time, platform, threading, music
 
 logger = Logger("logs/server.log", "KinectedUDS")
 
@@ -24,7 +24,13 @@ msgs = {
 	"poweron": "Set power state to: on",
 	"poweroff": "Set power state to: off",
 	"powertoggle": "Toggled power state",
+	"musicplay": "Playing music",
+	"musicstop": "Stopping music",
+	"musicnext": "Playing next song [songname]",
 }
+
+# Music
+musicplayer = music.MusicPlayer(logger, config)
 
 # Check if the server is running on a raspberry pi
 raspberry = False
@@ -117,6 +123,31 @@ def power(state: str) -> str:
 			else:
 				return msgs["devmode"]
 			return msgs["powertoggle"]
+		
+		return ["invalidstate"]
+	except:
+		logger.error("Error turning powertail " + state)
+		return msgs["error"]
+
+@app.route('/music/<action>')
+def music(action: str) -> str:
+	threading.Thread(target=blink_light_thread).start() # Start a thread to blink the light without slowing down the main process
+
+	global lastactiontime
+	if time.time() - lastactiontime < 0.5:
+		return msgs["cooldown"]
+	lastactiontime = time.time()
+
+	try:
+		if action == "play":
+			musicplayer.play()
+			return msgs["musicplay"]
+		elif action == "stop":
+			musicplayer.stop()
+			return msgs["musicstop"]
+		elif action == "next":
+			musicplayer.next()
+			return msgs["musicnext"]
 		
 		return ["invalidstate"]
 	except:
