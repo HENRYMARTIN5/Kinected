@@ -157,7 +157,7 @@ def music(action: str) -> str:
 			musicplayer.next()
 			return msgs["musicnext"].replace("[songname]", musicplayer.get_current_song())
 		
-		return ["invalidstate"]
+		return msgs["invalidstate"]
 	except Exception as e:
 		print(str(e))
 		logger.error("Error changing music to " + action)
