@@ -125,7 +125,8 @@ def power(state: str) -> str:
 			return msgs["powertoggle"]
 		
 		return ["invalidstate"]
-	except:
+	except Exception as e:
+		logger.debug(str(e))
 		logger.error("Error setting UDS port to " + state)
 		return msgs["error"]
 
