@@ -134,6 +134,7 @@ def power(state: str) -> str:
 def music(action: str) -> str:
 	threading.Thread(target=blink_light_thread).start() # Start a thread to blink the light without slowing down the main process
 
+   
 	global lastactiontime
 	if time.time() - lastactiontime < 0.5:
 		return msgs["cooldown"]
