@@ -147,6 +147,12 @@ def music(action: str) -> str:
 		elif action == "stop":
 			musicplayer.stop()
 			return msgs["musicstop"]
+		elif action == "toggle":
+			musicplayer.toggle()
+			if musicplayer.is_playing():
+				return msgs["musicplay"]
+			else:
+				return msgs["musicstop"]
 		elif action == "next":
 			musicplayer.next()
 			return msgs["musicnext"].replace("[songname]", musicplayer.get_current_song())
