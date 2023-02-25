@@ -71,3 +71,9 @@ class MusicPlayer:
     
     def get_current_song(self) -> str:
         return self.currentsongname
+
+    def toggle(self) -> None:
+        if self.playing:
+            self.stop()
+        else:
+            self.play()
