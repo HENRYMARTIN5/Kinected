@@ -51,12 +51,14 @@ class MusicPlayer:
             self.playing = False
     
     def next(self) -> None:
+        currentsongindex = self.currentsongindex # Values get overwritten on stop()
         if self.playing:
             self.stop()
-        if self.currentsongindex == len(self.music) - 1:
+        
+        if currentsongindex == len(self.music) - 1:
             self.play(self.music[0])
         else:
-            self.play(self.music[self.currentsongindex + 1])
+            self.play(self.music[currentsongindex + 1])
     
     def previous(self) -> None:
         if self.playing:
