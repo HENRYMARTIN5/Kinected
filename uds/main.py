@@ -151,7 +151,7 @@ def music(action: str) -> str:
 			return msgs["musicnext"]
 		
 		return ["invalidstate"]
-	except:
+	except Exception as e:
 		print(str(e))
 		logger.error("Error changing music to " + action)
 		return msgs["error"]
