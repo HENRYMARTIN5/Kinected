@@ -1,5 +1,6 @@
 """
 Basic music player class using PyGame Mixer for the Kinected UDS
+Path: /uds/music.py
 """
 
 from betterlib.config import ConfigFile
@@ -38,7 +39,7 @@ class MusicPlayer:
         self.currentsongindex = self.music.index(songname)
         self.currentsongthread = threading.Thread(target=self.currentsong.play)
         self.currentsongthread.start()
-        self.playing = True
+        self.playing = True  
     
     def stop(self) -> None:
         if self.playing:

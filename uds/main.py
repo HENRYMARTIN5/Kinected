@@ -1,4 +1,7 @@
-# Flask app
+"""
+Kinected UDS (Universal Device Server) - A Flask server that can be used to control devices and play music
+Path: /uds/main.py
+"""
 from flask import Flask, request
 from betterlib import ip
 from betterlib.config import ConfigFile
