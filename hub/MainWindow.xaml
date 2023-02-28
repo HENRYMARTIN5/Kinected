@@ -63,6 +63,7 @@
 
         </Grid>
         <TextBlock HorizontalAlignment="Center" Grid.Row="3" FontSize="13" TextWrapping="Wrap" Text="Welcome to Kinected! Make a fist with your left or right hand to trigger an action in your currently selected mode. To change the current mode that you are in, close both fists at the same time and close your left fist to cycle through options. Once you find the option that you would like to select, close your right fist to return to normal operations." VerticalAlignment="Center" Width="660" Height="78"/>
+        <CheckBox x:Name="MenuModeCheckbox" Content="Demo Mode" HorizontalAlignment="Left" Margin="546,10,0,0" VerticalAlignment="Top"/>
 
 
     </Grid>

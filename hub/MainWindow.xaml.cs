@@ -2,6 +2,8 @@
 // <copyright file="MainWindow.xaml.cs" company="Microsoft">
 //     Copyright (c) Microsoft Corporation.  All rights reserved.
 // </copyright>
+// Modified by Henry Martin for the Kinected Hub
+// Based on the Microsoft BodyBasics-WPF sample
 //------------------------------------------------------------------------------
 
 namespace Microsoft.Samples.Kinect.BodyBasics
@@ -45,116 +47,42 @@ namespace Microsoft.Samples.Kinect.BodyBasics
         private string powertailServerIp = "http://192.168.1.200:2531/";
         
         ////////////////////////////////////
-
-        /// <summary>
-        /// Radius of drawn hand circles
-        /// </summary>
+        /// 
         private const double HandSize = 30;
-
-        /// <summary>
-        /// Thickness of drawn joint lines
-        /// </summary>
         private const double JointThickness = 3;
-
-        /// <summary>
-        /// Thickness of clip edge rectangles
-        /// </summary>
         private const double ClipBoundsThickness = 10;
-
-        /// <summary>
-        /// Constant for clamping Z values of camera space points from being negative
-        /// </summary>
         private const float InferredZPositionClamp = 0.1f;
-
-        /// <summary>
-        /// Brush used for drawing hands that are currently tracked as closed
-        /// </summary>
         private readonly Brush handClosedBrush = new SolidColorBrush(Color.FromArgb(128, 255, 0, 0));
-
-        /// <summary>
-        /// Brush used for drawing hands that are currently tracked as opened
-        /// </summary>
         private readonly Brush handOpenBrush = new SolidColorBrush(Color.FromArgb(128, 0, 255, 0));
-
-        /// <summary>
-        /// Brush used for drawing hands that are currently tracked as in lasso (pointer) position
-        /// </summary>
         private readonly Brush handLassoBrush = new SolidColorBrush(Color.FromArgb(128, 0, 0, 255));
-
-        /// <summary>
-        /// Brush used for drawing joints that are currently tracked
-        /// </summary>
-        private readonly Brush trackedJointBrush = new SolidColorBrush(Color.FromArgb(255, 68, 192, 68));
-
-        /// <summary>
-        /// Brush used for drawing joints that are currently inferred
-        /// </summary>        
-        private readonly Brush inferredJointBrush = Brushes.Yellow;
-
-        /// <summary>
-        /// Pen used for drawing bones that are currently inferred
-        /// </summary>        
+        private readonly Brush trackedJointBrush = new SolidColorBrush(Color.FromArgb(255, 68, 192, 68));    
+        private readonly Brush inferredJointBrush = Brushes.Yellow;   
         private readonly Pen inferredBonePen = new Pen(Brushes.Gray, 1);
 
-        /// <summary>
-        /// Drawing group for body rendering output
-        /// </summary>
         private DrawingGroup drawingGroup;
-
-        /// <summary>
-        /// Drawing image that we will display
-        /// </summary>
         private DrawingImage imageSource;
 
-        /// <summary>
-        /// Active Kinect sensor
-        /// </summary>
+
         private KinectSensor kinectSensor = null;
-
-        /// <summary>
-        /// Coordinate mapper to map one type of point to another
-        /// </summary>
         private CoordinateMapper coordinateMapper = null;
-
-        /// <summary>
-        /// Reader for body frames
-        /// </summary>
         private BodyFrameReader bodyFrameReader = null;
 
-        /// <summary>
-        /// Array for the bodies
-        /// </summary>
         private Body[] bodies = null;
-
-        /// <summary>
-        /// definition of bones
-        /// </summary>
         private List<Tuple<JointType, JointType>> bones;
 
-        /// <summary>
-        /// Width of display (depth space)
-        /// </summary>
         private int displayWidth;
-
-        /// <summary>
-        /// Height of display (depth space)
-        /// </summary>
         private int displayHeight;
 
-        /// <summary>
-        /// List of colors for each body tracked
-        /// </summary>
         private List<Pen> bodyColors;
 
-        /// <summary>
-        /// Current status text to display
-        /// </summary>
         private string statusText = null;
 
         private bool wasRightHandLastClosed = false;
         private bool wasLeftHandLastClosed = false;
+        
         private bool powerActionCooldown = true;
         private int powerActionCooldownAmount = 500;
+
         private bool currentRightHandState = false;
         private bool currentLeftHandState = false;
         
@@ -258,8 +186,9 @@ namespace Microsoft.Samples.Kinect.BodyBasics
             // initialize the components (controls) of the window
             this.InitializeComponent();
 
-            this.menuItems.Add(new menuItem("Control UDS", "http://192.168.1.200:2531/power/off/", "http://192.168.1.200:2531/power/on/"));
+            this.menuItems.Add(new menuItem("Control UDS Socket", "http://192.168.1.200:2531/power/off", "http://192.168.1.200:2531/power/on"));
             this.menuItems.Add(new menuItem("Control Remote Lights", "http://maker.ifttt.com/trigger/LaundryOff/with/key/BQBlebqgTjtddNl9ciNQx", "http://maker.ifttt.com/trigger/Laundry/with/key/BQBlebqgTjtddNl9ciNQx"));
+            this.menuItems.Add(new menuItem("Toggle Music / Next Song", "http://192.168.1.200:2531/music/toggle", "http://192.168.1.200:2531/music/next"));
 
             this.updateMenu();
         }
@@ -516,7 +445,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
             switch (handState)
             {
                 case HandState.Closed:
-
+                    
                     if (hand == "right")
                     {
                         this.currentRightHandState = true;
@@ -528,7 +457,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                     
                     drawingContext.DrawEllipse(this.handClosedBrush, null, handPosition, HandSize, HandSize);
 
-                    if (this.currentRightHandState && this.currentLeftHandState)
+                    if (this.currentRightHandState && this.currentLeftHandState && !(this.MenuModeCheckbox.IsChecked ?? false))
                     {
                         Debug.WriteLine("Both hands are closed");
                         
